@@ -1,102 +1,110 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>RwW Open in App</title>
-<style>
-  body{
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    margin:0;
-    padding:0;
-    background:#000;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-height:100vh;
-    text-align:center;
-  }
-  .container{
-    width:100%;
-    max-width:900px;
-    padding:20px;
-  }
-  .big-button{
-    display:inline-block;
-    width:90%;
-    max-width:600px;
-    padding:25px;
-    font-size:28px;
-    font-weight:700;
-    background:#ffb400;
-    color:#000;
-    border-radius:14px;
-    text-decoration:none;
-    cursor:pointer;
-    border:0;
-    margin:30px auto;
-    transition:0.2s;
-  }
-  .big-button:hover{
-    background:#ffd56a;
-    transform:scale(1.02);
-  }
-  .fallback{
-    display:block;
-    margin-top:24px;
-    color:#ccc;
-  }
-  pre{
-    background:#111;
-    padding:8px;
-    border-radius:8px;
-    margin-top:14px;
-    color:#0f0;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RWW Open whit App</title>
+  <style>
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin:0;
+      padding:0;
+      background:#000;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      min-height:100vh;
+      text-align:center;
+    }
+    header{
+      width:100%;
+      padding:20px 0;
+      background:#111;
+      color:#ffb400;
+      font-size:24px;
+      font-weight:700;
+      text-align:center;
+      border-bottom:1px solid #333;
+    }
+    .container{
+      width:100%;
+      max-width:900px;
+      padding:20px;
+      margin-top:40px;
+    }
+    .big-button{
+      display:inline-block;
+      width:90%;
+      max-width:600px;
+      padding:25px;
+      font-size:28px;
+      font-weight:700;
+      background:#ffb400;
+      color:#000;
+      border-radius:14px;
+      text-decoration:none;
+      cursor:pointer;
+      border:0;
+      margin:30px auto;
+      transition:0.2s;
+    }
+    .big-button:hover{
+      background:#ffd56a;
+      transform:scale(1.02);
+    }
+    .result{
+      margin-top:24px;
+      font-size:18px;
+      color:#0f0;
+      min-height:24px;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <button id="openBtn" class="big-button">
-    Open modification on app
-  </button>
 
-  <a id="playLink" class="fallback" href="#" target="_blank">
-    Open on Play Store
-  </a>
+  <header>
+    Open with Rusted Warfare WorkShop
+  </header>
 
-  <small>Detected URL (debug):</small>
-  <pre id="detected"></pre>
-</div>
+  <div class="container">
+    <button id="shareBtn" class="big-button">
+      Open with Rusted Warfare WorkShop
+    </button>
+
+    <p class="result"></p>
+  </div>
 
 <script>
 (function(){
-  const pkg = "com.BlackLabelAppsSoftware.RustedWarfareWorkShop";
-  const playUrl = "https://play.google.com/store/apps/details?id=" + pkg;
 
-  const fullUrl = window.location.href;
-  document.getElementById("detected").textContent = fullUrl;
-  const parsed = new URL(fullUrl);
-  const host = parsed.host;
-  const path = parsed.pathname + parsed.search + parsed.hash;
+  const btn = document.getElementById("shareBtn");
+  const result = document.querySelector(".result");
 
-  const intentUri =
-    "intent://" + host + path +
-    "#Intent;scheme=http;action=android.intent.action.VIEW;package=" + pkg +
-    ";S.browser_fallback_url=" + encodeURIComponent(playUrl) +
-    ";end";
+  const shareData = {
+    title: "Rusted Warfare WorkShop",
+    text: window.location.href,
+    url: window.location.href
+  };
 
-  document.getElementById("playLink").href = playUrl;
-
-  function openApp() {
-    window.location.href = intentUri;
+  async function doShare(){
+    try {
+      await navigator.share(shareData);
+      result.textContent = "Shared Correctly ✔️";
+      result.style.color = "#0f0";
+    } catch(err){
+      result.textContent = "Error: " + err;
+      result.style.color = "#f55";
+    }
   }
-  document.getElementById("openBtn").addEventListener("click", openApp);
-
-  setTimeout(openApp, 700);
+  btn.addEventListener("click", doShare);
+  setTimeout(() => {
+    doShare();
+  }, 3000);
 
 })();
 </script>
+
 </body>
 </html>
