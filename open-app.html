@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RwW Open with App</title>
+  <style>
+* {
+  box-sizing: border-box;
+}
+    body{
+      font-family: "Segoe UI", sans-serif;
+      margin:0;
+      padding:0;
+      background:#000;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      min-height:100vh;
+      background-image:url("https://rustedwardatehome.wordpress.com/wp-content/uploads/2020/06/bg22-1.jpg");
+      background-size:150px;
+    }
+    header{
+      width:100%;
+      padding:20px 0;
+      background:rgba(0,0,0,0.65);
+      color:#7ef2d3;
+      font-size:26px;
+      font-weight:700;
+      text-align:center;
+      border-bottom:2px solid #58c7b4;
+      backdrop-filter:blur(3px);
+    }
+    .container{
+    width:100%;
+    max-width:900px;
+    padding:20px;
+    margin-top:40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-x: hidden;
+    gap:20px;
+    }
+    .big-button{
+      width:90%;
+      max-width:600px;
+      padding:25px;
+      font-size:28px;
+      font-weight:700;
+      color:#00332a;
+      border-radius:18px;
+      text-decoration:none;
+      cursor:pointer;
+      border:0;
+      box-shadow:0 0 12px #39bca3;
+      transition:0.25s;
+    }
+    .big-button:hover{
+      transform:scale(1.04);
+    }
+    .gray-button{
+      background:#c7c7c7;
+      color:#1a1a1a;
+      box-shadow:0 0 12px #777;
+    }
+    .gray-button:hover{
+      background:#e0e0e0;
+      box-shadow:0 0 18px #aaa;
+    }
+    .green-button{
+      background:#7ef2d3;
+      box-shadow:0 0 12px #39bca3;
+    }
+    .green-button:hover{
+      background:#a4ffee;
+      box-shadow:0 0 18px #7ffff0;
+    }
+    .label-title{
+      font-family: "Press Start 2P", monospace;
+      font-size: 42px;
+      color: #7ef2d3;
+      text-align: center;
+      margin: 40px 0;
+      text-shadow:
+        0 0 6px #39bca3,
+        0 0 12px #39bca3;
+    }
+    .result-box{
+      margin-top:10px;
+      padding:20px;
+      width:90%;
+      max-width:650px;
+      background:rgba(0,0,0,0.6);
+      border-radius:20px;
+      box-shadow:0 0 8px #268f7b;
+      border:2px solid #4bcab4;
+      font-size:18px;
+      color:#9fffe8;
+      word-break:break-all;
+      cursor:text;
+      user-select:text;
+      text-align:left;
+    }
+    .hint{
+      margin-top:10px;
+      color:#6fe4c9;
+      font-size:14px;
+      opacity:0.8;
+    }
+    img {
+     height: auto;
+     display: block;
+    }
+    html, body {
+    width: 100%;
+    overflow-x: hidden;
+    }
+  </style>
+</head>
+<body>
+<header>
+   Rusted Warfare WorkShop Opener
+</header>
+
+<div class="container">
+
+  <img id="previewImg" style="max-width:90%; border-radius:15px; box-shadow:0 0 12px #39bca3;" alt="RwW Icon Post" />
+
+  <div id="labelTitle" class="label-title" style="display:none;">Labels</div>
+
+  <button id="shareBtn" class="big-button green-button">
+    Open with Rusted Warfare WorkShop
+  </button>
+
+  <div id="result" class="result-box"></div>
+
+  <div class="hint">Not have the app? Tap down to...</div>
+
+  <button id="installBtn" class="big-button gray-button">
+      Install the app
+  </button>
+
+</div>
+
+<script>
+(async function(){
+
+  const result = document.getElementById("result");
+  const btn = document.getElementById("shareBtn");
+  const installBtn = document.getElementById("installBtn");
+  const imgBox = document.getElementById("previewImg");
+  const labelTitle = document.getElementById("labelTitle");
+  const headerEl = document.querySelector("header");
+
+  result.textContent = window.location.href;
+
+  result.addEventListener("click", () => {
+    const range = document.createRange();
+    range.selectNodeContents(result);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+
+  const hash = window.location.hash.substring(1);
+  const isLabelPage = hash.startsWith("search/label/");
+
+  const parts = hash.split("/");
+  let name = parts[parts.length - 1] || "";
+  name = name.replace(/[-_]+/g, " ");
+  name = name.replace(/\b\w/g, c => c.toUpperCase());
+
+  function githubToBlogger(urlHash) {
+    return "https://rustedwarfareworkshop.blogspot.com/" + urlHash + ".html?m=1";
+  }
+
+  const bloggerURL = githubToBlogger(hash);
+
+  function extractImageBlogJS(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const images = doc.querySelectorAll("img");
+    for (let img of images) {
+      let w = parseInt(img.getAttribute("width")) || 0;
+      let h = parseInt(img.getAttribute("height")) || 0;
+
+      if (w === 0 && img.style.width)
+        w = parseInt(img.style.width.replace("px",""));
+
+      if (h === 0 && img.style.height)
+        h = parseInt(img.style.height.replace("px",""));
+
+      if (w >= 150 || h >= 150) {
+        return img.src;
+      }
+    }
+    return "";
+  }
+
+  async function loadImage() {
+    try {
+      const proxyURL =
+        "https://rustedwarfareworkshop.black-label-apps-0.workers.dev/?url=" +
+        encodeURIComponent(bloggerURL);
+
+      const response = await fetch(proxyURL);
+      const html = await response.text();
+      const imgURL = extractImageBlogJS(html);
+
+      if (imgURL) {
+        imgBox.src = imgURL;
+      } else {
+        imgBox.alt = "No image found";
+      }
+
+    } catch (e) {
+      console.log("Error loading image:", e);
+      imgBox.alt = "Error loading image";
+    }
+  }
+
+  if (isLabelPage) {
+    imgBox.style.display = "none";
+    labelTitle.style.display = "block";
+    headerEl.textContent = "Label";
+    labelTitle.textContent = name || "LABEL";
+  } else {
+    headerEl.textContent = name || "No name";
+    loadImage();
+  }
+
+  const shareData = {
+    title: "Open with RW WorkShop",
+    text: window.location.href
+  };
+
+  btn.addEventListener("click", async () => {
+    try { 
+      await navigator.share(shareData); 
+    }
+    catch(e){ 
+      console.log("Share error:", e); 
+    }
+  });
+
+  installBtn.addEventListener("click", () => {
+    window.open(
+      "https://play.google.com/store/apps/details?id=com.BlackLabelAppsSoftware.RustedWarfareWorkShop",
+      "_blank"
+    );
+  });
+
+})();
+</script>
+
+</body>
+</html>
